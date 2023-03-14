@@ -1,0 +1,38 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: admin-gateway
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+    gateway:
+      routes:
+        - id: categories_router
+          uri: lb://admin-categorys
+          predicates:
+            - Path=/admin/categories/**
+          filters:
+            - StripPrefix=1
+
+        - id: users_router
+          uri: lb://admin-users
+          predicates:
+            - Path=/admin/users/**
+          filters:
+            - StripPrefix=1
+
+        - id: videos_router
+          uri: lb://admin-videos
+          predicates:
+            - Path=/admin/videos/**
+          filters:
+            - StripPrefix=1
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"

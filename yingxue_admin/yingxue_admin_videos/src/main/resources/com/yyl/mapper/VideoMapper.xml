@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyl.dao.VideoDao">
+
+    <sql id="keyWordFields">
+        <where>
+            <if test="id!= null">
+                and a.id=#{id}
+            </if>
+            <if test="title !=null and title !=''">
+                and a.title like concat('%',#{title},'%')
+            </if>
+            <if test="categoryId != null and categoryId != ''">
+                and b.id=#{categoryId}
+            </if>
+            <if test="username!=null and username!=''">
+                and c.name=#{username}
+            </if>
+        </where>
+    </sql>
+
+
+    <resultMap type="com.yyl.entity.Video" id="VideoMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="intro" column="intro" jdbcType="VARCHAR"/>
+        <result property="uid" column="uid" jdbcType="INTEGER"/>
+        <result property="cover" column="cover" jdbcType="VARCHAR"/>
+        <result property="link" column="link" jdbcType="VARCHAR"/>
+        <result property="categoryId" column="category_id" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+
+    <resultMap id="VideoCategoryUsersMap" type="com.yyl.entity.Video" extends="VideoMap">
+        <result property="category" column="category" jdbcType="VARCHAR"/>
+        <association property="uploader" javaType="com.yyl.entity.User">
+            <result property="id" column="cid" jdbcType="INTEGER"/>
+            <result property="name" column="username" jdbcType="VARCHAR"/>
+            <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
+            <result property="intro" column="intro" jdbcType="VARCHAR"/>
+            <result property="phone" column="phone" jdbcType="VARCHAR"/>
+            <result property="phoneLinked" column="phone_linked" jdbcType="INTEGER"/>
+            <result property="openid" column="openid" jdbcType="VARCHAR"/>
+            <result property="wechatLinked" column="wechat_linked" jdbcType="INTEGER"/>
+            <result property="followingCount" column="following_count" jdbcType="INTEGER"/>
+            <result property="followersCount" column="followers_count" jdbcType="INTEGER"/>
+            <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+            <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+            <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+        </association>
+    </resultMap>
+
+
+    <select id="findAllKeywords" resultMap="VideoCategoryUsersMap">
+        select a.id,a.title,a.intro,a.uid,a.cover,a.link,a.category_id,a.created_at,a.updated_at,a.deleted_at,
+        b.name category,
+        c.id cid,c.name username,c.avatar,c.intro,c.phone,c.phone_linked,c.openid,c.wechat_linked,c.followers_count,c.following_count,c.created_at,c.updated_at,c.deleted_at
+        from video a left join category b on a.category_id = b.id
+        left join user c on a.uid=c.id
+        <include refid="keyWordFields"/>
+        limit #{offset},#{limit}
+    </select>
+
+    <select id="findTotalCountsByKeywords" resultType="Long">
+        select count(a.id)
+        from video a left join category b on a.category_id = b.id
+        left join user c on a.uid=c.id
+        <include refid="keyWordFields"/>
+    </select>
+</mapper>

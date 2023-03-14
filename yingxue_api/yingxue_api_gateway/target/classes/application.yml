@@ -1,0 +1,61 @@
+server:
+  port: 8788
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+    gateway:
+      routes:
+        - id: categories_router
+          uri: lb://api-categorys
+          predicates:
+            - Path=/api/categories/**
+          filters:
+            - StripPrefix=1
+
+        - id: videos_router
+          uri: lb://api-videos
+          predicates:
+            - Path=/api/videos/**,/api/recommends,/api/videos
+          filters:
+            - StripPrefix=1
+
+        - id: users_router
+          uri: lb://api-users
+          predicates:
+            - Path=/api/captchas/**,/api/tokens/**,/api/user/**,/api/userInfo/**
+          filters:
+            - StripPrefix=1
+
+        - id: files_router
+          uri: lb://api-files
+          predicates:
+            - Path=/api/files
+          filters:
+            - StripPrefix=1
+
+        - id: files_router
+          uri: lb://api-search
+          predicates:
+            - Path=/api/search/videos
+          filters:
+            - StripPrefix=1
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+
+
+
+
+
+
+
+
+

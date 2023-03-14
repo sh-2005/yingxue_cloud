@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yyl.dao.ApiCategoryDao">
+    <resultMap type="com.yyl.entity.Category" id="CategoryMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="createdAt" column="created_at" jdbcType="TIMESTAMP"/>
+        <result property="updatedAt" column="updated_at" jdbcType="TIMESTAMP"/>
+        <result property="deletedAt" column="deleted_at" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <!--类别列表-->
+    <resultMap id="CategoryListMap" type="com.yyl.entity.Category">
+        <result property="id" column="id" javaType="Integer"/>
+        <result property="name" column="name" javaType="String"/>
+        <result property="parentId" column="aparentId" javaType="Integer"/>
+        <!--孩子属性-->
+        <collection property="children" ofType="com.yyl.entity.Category">
+            <result property="id" column="bId" javaType="Integer"/>
+            <result property="name" column="bName" javaType="String"/>
+            <result property="parentId" column="bparentId" javaType="Integer"/>
+        </collection>
+    </resultMap>
+    <!--查询所有表连接-->
+    <select id="findAll" resultMap="CategoryListMap">
+        select a.id,a.name,a.parent_id aparentId,
+        b.id bId,b.name bName,b.parent_id bparentId
+        from category a left join category b
+        on a.id = b.parent_id
+        where a.parent_id is null
+    </select>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="CategoryMap">
+        select
+          id, name, parent_id, created_at, updated_at, deleted_at
+        from category
+        where id = #{id}
+    </select>
+</mapper>
